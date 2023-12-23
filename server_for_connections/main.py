@@ -141,8 +141,10 @@ async def _update_metadata(*, user: User) -> None:
 
     database = app.state.database
 
-    discord_token = DiscordToken(**await database.discord.tokens.find_one({'id': user.discord_user_id}))  # TODO change to user_id
-    shikimori_token = ShikimoriToken(**await database.shikimori.tokens.find_one({'id': user.shikimori_user_id}))
+    raw_discord_token = await database.discord.tokens.find_one({'id': user.discord_user_id})  # TODO change to user_id
+    discord_token = DiscordToken(**raw_discord_token['token'])
+    raw_shikimori_token = await database.shikimori.tokens.find_one({'id': user.shikimori_user_id})
+    shikimori_token = ShikimoriToken(**raw_shikimori_token['token'])
 
     shikimori_client = app.state.shikimori_client
 
