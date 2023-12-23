@@ -4,3 +4,4 @@ venv
 ssl
 Makefile
 docker-compose-dev.yml
+server_for_connections/register_metadata.py

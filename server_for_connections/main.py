@@ -9,8 +9,11 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.database import Database
 from starlette.background import BackgroundTask
 
+from server_for_connections.metadata import ShikimoriMetadata
 from session import cookie, verifier, session_backend
 from models import Session, User, DiscordTokenInDB, ShikimoriTokenInDB
+
+from shikimori_extended_api.endpoints import api_endpoint
 
 REDIRECT_URL = 'https://discord.com/app'
 
@@ -133,29 +136,27 @@ async def _update_metadata(*, user: User) -> None:
 
     database = app.state.database
 
-    discord_token = database.discord.tokens.find_one({'id': user.discord_user_id})  # TODO change to user_id
-    shikimori_token = database.shikimori.tokens.find_one({'id': user.shikimori_user_id})
+    discord_token = await database.discord.tokens.find_one({'id': user.discord_user_id})  # TODO change to user_id
+    shikimori_token = await database.shikimori.tokens.find_one({'id': user.shikimori_user_id})
 
     shikimori_client = app.state.shikimori_client
 
     additional_data = await shikimori_client.get_current_user_info(shikimori_token)
     user_id = additional_data['id']
-    # additional_data = await shikimori_client.go().users.id(user_id).get()
+    full_data = await shikimori_client.get(api_endpoint.user.id(user_id)(), token=shikimori_token)
 
     # amount of completed anime
     anime_completed = 0
-    rate_groups = additional_data['stats']['statuses']['anime']
+    rate_groups = full_data['stats']['statuses']['anime']
     for rate_group in rate_groups:
         if rate_group['name'] == 'completed':
             anime_completed = rate_group['size']
             break
 
-    metadata = {  # TODO ...
-        # 'shikimori_user_id': user_info['id'],
-        # 'shikimori_nickname': user_info['nickname'],
-        # 'shikimori_token_id': shiki_token_data.pk,
-        # 'anime_watched': anime_completed
-    }
+    metadata = ShikimoriMetadata({
+        'anime_finished': anime_completed,
+        'platform_username': additional_data['nickname']
+    })
 
     await app.state.connections_client.push_metadata(discord_token, metadata)
 
