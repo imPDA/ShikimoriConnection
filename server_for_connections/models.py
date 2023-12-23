@@ -58,6 +58,22 @@ class DiscordTokenInDB(DiscordToken):
 
 
 class ShikimoriTokenInDB(ShikimoriToken):
+    @field_serializer('expires_in')
+    def serialize_timedelta(self, td: timedelta):
+        return td.total_seconds()
+
+    @field_validator('expires_in', mode='before')  # noqa
+    @classmethod
+    def deserialize_expires_in(cls, v) -> timedelta:
+        if isinstance(v, timedelta):
+            return v
+        elif isinstance(v, (int, float)):
+            return timedelta(seconds=v)
+        elif isinstance(v, str):
+            return timedelta(seconds=float(v))
+
+        raise ValueError('`expires_in` must be a `timedelta` or int/str representation in seconds')
+
     @classmethod
     def from_token(cls, token: ShikimoriToken) -> dict:
         # https://stackoverflow.com/questions/64446491/pydantic-upgrading-object-to-another-model
