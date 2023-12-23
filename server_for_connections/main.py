@@ -102,7 +102,11 @@ async def _handle_user_data(
 ) -> None:
     database = request.app.state.database
 
-    db_user = await database.users.find_one(user_data)
+    if session:
+        db_user = await database.users.find_one({'_id': session.user_id})
+    else:
+        db_user = await database.users.find_one(user_data)
+
     if not db_user:
         user = User(**user_data)
         await database.users.insert_one(user.model_dump(by_alias=True, exclude_none=True))
