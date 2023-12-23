@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  connections_server:
+    container_name: server
+    build:
+      context: ./server_for_connections
+      dockerfile: Dockerfile
+    ports:
+      - "80:8000"
+    networks:
+      - db
+    env_file:
+      - ./.env
+    restart: unless-stopped
+
+networks:
+  db:
+    external: true

@@ -1,0 +1,6 @@
+venv
+.idea
+.env
+ssl
+Makefile
+docker-compose-dev.yml
