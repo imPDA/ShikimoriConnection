@@ -7,6 +7,7 @@ from uuid import UUID, uuid4
 import pendulum
 from bson import ObjectId
 from discord_connections import DiscordToken
+from shikimori_extended_api.datatypes import ShikimoriToken
 from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
 
 TZ = os.environ.get('TZ')
@@ -17,7 +18,7 @@ class User(BaseModel):
 
     id: Optional[ObjectId] = Field(alias='_id', default=None)
     discord_user_id: Optional[int] = None
-    shikimori_user_id: Optional[str] = None
+    shikimori_user_id: Optional[int] = None
 
 
 class Session(BaseModel):
@@ -56,7 +57,8 @@ class DiscordTokenInDB(DiscordToken):
         return cls.model_validate(token, from_attributes=True).model_dump()
 
 
-class ShikimoriTokenInDB:
+class ShikimoriTokenInDB(ShikimoriToken):
     @classmethod
-    def from_token(cls, token) -> dict:
-        ...
+    def from_token(cls, token: ShikimoriToken) -> dict:
+        # https://stackoverflow.com/questions/64446491/pydantic-upgrading-object-to-another-model
+        return cls.model_validate(token, from_attributes=True).model_dump()
