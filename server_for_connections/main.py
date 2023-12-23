@@ -150,7 +150,7 @@ async def _update_metadata(*, user: User) -> None:
 
     additional_data = await shikimori_client.get_current_user_info(shikimori_token)
     user_id = additional_data['id']
-    full_data = await shikimori_client.get(api_endpoint.user.id(user_id)(), token=shikimori_token)
+    full_data = await shikimori_client.get(api_endpoint.users.id(user_id)(), token=shikimori_token)
 
     # amount of completed anime
     anime_completed = 0
