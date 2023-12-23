@@ -83,7 +83,7 @@ async def shikimori_oauth_callback(
     database: Database = request.app.state.database
     await database.shikimori.tokens.update_one(
         {'user_id': user_id},
-        {'id': user_id, 'token': ShikimoriTokenInDB.from_token(token)},
+        {'$set': {'id': user_id, 'token': ShikimoriTokenInDB.from_token(token)}},
         upsert=True
     )
 
