@@ -102,13 +102,21 @@ async def _handle_user_data(
 ) -> None:
     database = request.app.state.database
 
-    db_user = await database.users.find_one(user_data)
-    if not db_user:
-        user = User(**user_data)
-        await database.users.insert_one(user.model_dump(by_alias=True, exclude_none=True))
+    if session:
+        db_user = await database.users.find_one({'_id': session.user_id})
+    else:
         db_user = await database.users.find_one(user_data)
 
-    user = User(**db_user)
+    if not db_user:
+        user = User(**user_data)  # TODO auto id generation
+        await database.users.insert_one(user.model_dump(by_alias=True, exclude_none=True))
+        user = User(**await database.users.find_one(user_data))
+    else:
+        user = User(**db_user, **user_data)
+        await database.users.update_one(
+            {'_id': user.id},
+            {'$set': user_data}
+        )
 
     if not session:
         session = Session(user_id=user.id)
