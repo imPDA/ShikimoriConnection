@@ -116,7 +116,8 @@ async def _handle_user_data(
         await database.users.insert_one(user.model_dump(by_alias=True, exclude_none=True))
         user = User(**await database.users.find_one(user_data))
     else:
-        user = User(**db_user, **user_data)
+        db_user.update(user_data)
+        user = User(**db_user)
         await database.users.update_one(
             {'_id': user.id},
             {'$set': user_data}
