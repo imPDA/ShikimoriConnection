@@ -9,7 +9,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.database import Database
 from starlette.background import BackgroundTask
 
-from server_for_connections.metadata import ShikimoriMetadata
+from metadata import ShikimoriMetadata
+
 from session import cookie, verifier, session_backend
 from models import Session, User, DiscordTokenInDB, ShikimoriTokenInDB
 
