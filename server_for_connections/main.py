@@ -15,6 +15,9 @@ from session import cookie, verifier, session_backend
 from models import Session, User, DiscordTokenInDB, ShikimoriTokenInDB
 
 from shikimori_extended_api.endpoints import api_endpoint
+from shikimori_extended_api.datatypes import ShikimoriToken
+
+from discord_connections import DiscordToken
 
 REDIRECT_URL = 'https://discord.com/app'
 
@@ -138,8 +141,8 @@ async def _update_metadata(*, user: User) -> None:
 
     database = app.state.database
 
-    discord_token = await database.discord.tokens.find_one({'id': user.discord_user_id})  # TODO change to user_id
-    shikimori_token = await database.shikimori.tokens.find_one({'id': user.shikimori_user_id})
+    discord_token = DiscordToken(**await database.discord.tokens.find_one({'id': user.discord_user_id}))  # TODO change to user_id
+    shikimori_token = ShikimoriToken(**await database.shikimori.tokens.find_one({'id': user.shikimori_user_id}))
 
     shikimori_client = app.state.shikimori_client
 
