@@ -160,8 +160,11 @@ async def _update_metadata(*, user: User) -> None:
             anime_completed = rate_group['size']
             break
 
+    watch_time = await shikimori_client.fetch_total_watch_time_graphql(user_id)  # in minutes
+
     metadata = ShikimoriMetadata({
         'anime_finished': anime_completed,
+        'watch_time': int(watch_time / 60 / 24),
         'platform_username': additional_data['nickname']
     })
 
